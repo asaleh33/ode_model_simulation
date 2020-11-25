@@ -1,7 +1,7 @@
-# Based on the original ODEcodes (Berkeley Madonna and Francesco Pasqualini's Python code) # 
-# for "a model of lysosomal acidification",                                                #
-# this initial "ODE model simulation" is written by Ahmed Khalil                           #
-############################################################################################
+# Based on the original ODE codes (Berkeley Madonna and Francesco Pasqualini's Python code) # 
+# for "a model of lysosomal acidification",                                                 #
+# this initial "ODE model simulation" is written by Ahmed Khalil                            #  
+#############################################################################################
 
 import numpy as np
 import pandas as pd
@@ -125,7 +125,7 @@ class ODEMODEL:
         return self.Pump_flux
 
 
-    ##===========================================================
+    ##===================================================================================
 
     @property
     def InitConditions(self):
