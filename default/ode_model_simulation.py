@@ -350,6 +350,7 @@ class ODEMODEL:
     def GetPlot(self, time, tdq, color=None, label=None, xlabel=True, ylabel=True, figname=None):
     
         plt.plot(time, tdq, linestyle='-', linewidth=2, color=color, label=label)
+        plt.title(label="Default case", fontsize=18, color="black")
         plt.grid(linestyle='--',alpha=2)
         plt.legend(loc="best", prop={'size':12}, frameon=False)        
         plt.xlabel(xlabel, fontsize=15)

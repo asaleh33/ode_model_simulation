@@ -370,6 +370,7 @@ class ODEMODEL:
 
     
         plt.plot(time, tdq, linestyle='-', linewidth=2, color=color, label=label)
+        plt.title(label="PCl-ON case", fontsize=18, color="black")
         plt.grid(linestyle='--',alpha=2)
         plt.legend(loc="best", prop={'size':12}, frameon=False)        
         plt.xlabel(xlabel, fontsize=15)
