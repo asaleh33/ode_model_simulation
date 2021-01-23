@@ -13,7 +13,7 @@ from pumpflux import pumpvalues
 
 
 class ODEMODEL:    
-    def __init__(self, STARTTIME=0, STOPTIME=True, DT=True, DTMAX=True, TOLERANCE=True, Pump_flux=True, B=True, Q=True, initpH=7.4, psi_in=0, initH=0.00, initpsi_total=0):
+    def __init__(self, STARTTIME=0.0, STOPTIME=True, DT=True, DTMAX=True, TOLERANCE=True, Pump_flux=True, B=True, Q=True, initpH=7.4, psi_in=0, initH=0.00, initpsi_total=0):
         super(ODEMODEL, self).__init__()
 
         # Standard Constants:
@@ -25,7 +25,7 @@ class ODEMODEL:
 
         # METHOD STIFF
         self.STARTTIME=STARTTIME
-        self.STOPTIME=2000
+        self.STOPTIME=2000.0
         self.DT=0.02
         self.DTMAX=100
         self.TOLERANCE=1e-6
@@ -208,7 +208,6 @@ class ODEMODEL:
         else:
             gg = 1/(1 - (psi/self.RTF)/2 + (psi/self.RTF)**2/6. - (psi/self.RTF)**3/24. +(psi/self.RTF)**4/120.)
             return gg
-
  
 
     def GetCLC7(self, Cle, Cli, pHe, pHi, psi): 
@@ -312,7 +311,7 @@ class ODEMODEL:
 
     	# get time dependent parameters
         pH, Ncl, NK, Nna, NH, V = self.GetTDP(y)
-        print("main parameters", pH, Ncl, NK, Nna, NH, V)
+        #print("main parameters", pH, Ncl, NK, Nna, NH, V)
                      
         Cl, K, H, Na = self.LuminalConcs(Ncl, V, NK, NH, Nna)
         ## Modified Cytoplasmic Surface Concentrations
@@ -322,6 +321,9 @@ class ODEMODEL:
 
         ## get psi
         psi = self.F*(V*(H+(K+Na)-Cl)-(self.B*self.initV))/self.cap
+
+        ##print("pH, psi", pH, psi)
+
         # get Hpump
         Hpump = self.GetHpump(psi, pH) 
         # get CLC7      
@@ -342,7 +344,8 @@ class ODEMODEL:
         dNK_dt = self.Get_dNK_dt(Kflow)
         dNna_dt = self.Get_dNna_dt(Naflow)
         dNH_dt = self.Get_dNH_dt(Hpump, Hflow, CLC7)
-        dV_dt = self.Get_dV_dt(Jw)
+        dV_dt = self.Get_dV_dt(Jw)      
+
         return [dpH_dt, dNcl_dt, dNK_dt, dNna_dt, dNH_dt, dV_dt]
 
 
@@ -371,12 +374,25 @@ class ODEMODEL:
         # set inital conditions
         pH, Ncl, NK, Nna, NH, V = object.InitConditions  
 
-        ##TIMEINTERVAL = [self.STARTTIME, self.STOPTIME]
-        TIMEINTERVAL = [self.STARTTIME, self.STOPTIME, self.DT]
-        time = np.linspace(0,self.STOPTIME,1000)
+        #TIMEINTERVAL = (self.STARTTIME, self.STOPTIME)
+        ##TIMEINTERVAL = [self.STARTTIME, self.STOPTIME, self.DT]
+        ##TIMEINTERVAL = list(np.arange(self.STARTTIME, self.STOPTIME, self.DT))
 
+        #time = np.linspace(0.0,self.STOPTIME,2000)
+        ##time = np.arange(0.0,self.STOPTIME, self.DT)
+        
         # solve ode
-        SOL = solve_ivp(fun=object.TDQ, t_span=TIMEINTERVAL, y0=[pH, Ncl, NK, Nna, NH, V], t_eval=time, method='BDF')
+        #SOL = solve_ivp(fun=object.TDQ, t_span=TIMEINTERVAL, y0=np.array([pH, Ncl, NK, Nna, NH, V]), t_eval=time, method='BDF')
+
+
+        y0=np.array([pH, Ncl, NK, Nna, NH, V])
+        t_span = (self.STARTTIME, self.STOPTIME)
+        t_eval = np.linspace(0.0,self.STOPTIME,100000)
+
+
+        SOL = solve_ivp(object.TDQ, t_span, y0, t_eval=t_eval, method='BDF')
+
+
  
         # get TDQ plots
         object.GetPlot(SOL.t, SOL.y[0, :], color="darkorange", label="pH", xlabel="Time [s]", ylabel="pH", figname="pH")        
