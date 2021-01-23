@@ -55,7 +55,7 @@ class ODEMODEL:
 
         # luminal concentrations parameters
         self.initpH=initpH  # pH [pH units]
-        self.initk= 0.005    # K+ [M]
+        self.initk= 0.005   # K+ [M]
         self.initcl=0.11    # Cl- [M]
         self.initna=0.145   # Na+ [M]
         self.initH=initH    # total H+ [M]
@@ -64,10 +64,10 @@ class ODEMODEL:
         self.initpsi_total=initpsi_total
 
         # kinetic parameters
-        self.P=6.0e-5         # H+ permeability
-        self.Pcl= 0     # Cl+ permeability
-        self.Pk= 0      # K+ permeability
-        self.Pna= 0     # Na+ permeability
+        self.P=6.0e-5       # H+ permeability
+        self.Pcl= 0         # Cl+ permeability
+        self.Pk= 0          # K+ permeability
+        self.Pna= 0         # Na+ permeability
         self.Pw=0           # Water permeability
         self.N_VATP=300     # Number of V-ATPases
         self.N_CLC=5000     # Number of ClC-7 antiporters
@@ -318,7 +318,7 @@ class ODEMODEL:
         ## Modified Cytoplasmic Surface Concentrations
         Cle, Ke, Nae, pHe = self.GetMCytoSurfConcs        
         ## Modified Luminal Surface Concentrations
-        Cli, Ki, Nai, pHi = self.GetMLuminalSurfConcs(Cl, K, Na, pH) ### lo8z
+        Cli, Ki, Nai, pHi = self.GetMLuminalSurfConcs(Cl, K, Na, pH) ###  
 
         ## get psi
         psi = self.F*(V*(H+(K+Na)-Cl)-(self.B*self.initV))/self.cap
@@ -348,10 +348,9 @@ class ODEMODEL:
 
 
     def GetPlot(self, time, tdq, color=None, label=None, xlabel=True, ylabel=True, figname=None):
-
     
         plt.plot(time, tdq, linestyle='-', linewidth=2, color=color, label=label)
-        plt.grid()
+        plt.grid(linestyle='--',alpha=2)
         plt.legend(loc="best", prop={'size':12}, frameon=False)        
         plt.xlabel(xlabel, fontsize=15)
         plt.ylabel(ylabel, fontsize=15)
@@ -370,19 +369,13 @@ class ODEMODEL:
         self.Q=self.SetOsmoticBalance
         # set inital conditions
         pH, Ncl, NK, Nna, NH, V = object.InitConditions  
+        print("initial conditions:", pH, Ncl, NK, Nna, NH, V)
 
-        print(pH, Ncl, NK, Nna, NH, V)
-
-        TIMEINTERVAL = [self.STARTTIME, self.STOPTIME]
-        #TIMEINTERVAL = (self.STARTTIME, self.STOPTIME)
-        ##TIMEINTERVAL = [self.STARTTIME, self.STOPTIME, self.DT]
-        #time = np.linspace(0,self.STOPTIME,1000)
-        time = np.arange(0, 2000,0.02)
-
-        # solve ode
+        TIMEINTERVAL = [self.STARTTIME, self.STOPTIME] 
+        time = np.arange(self.STARTTIME, self.STOPTIME,self.DT)
+        
+        # solve ode using solve_ivp
         SOL = solve_ivp(fun=object.TDQ, t_span=TIMEINTERVAL, y0=[pH, Ncl, NK, Nna, NH, V], t_eval=time, method='BDF')
-
-
  
         # get TDQ plots
         object.GetPlot(SOL.t, SOL.y[0, :], color="darkorange", label="pH", xlabel="Time [s]", ylabel="pH", figname="pH")        

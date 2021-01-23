@@ -334,7 +334,7 @@ class ODEMODEL:
         ## Modified Cytoplasmic Surface Concentrations
         Cle, Ke, Nae, pHe = self.GetMCytoSurfConcs        
         ## Modified Luminal Surface Concentrations
-        Cli, Ki, Nai, pHi = self.GetMLuminalSurfConcs(Cl, K, Na, pH) ### lo8z
+        Cli, Ki, Nai, pHi = self.GetMLuminalSurfConcs(Cl, K, Na, pH) ###  
 
         ## get psi
         psi = self.F*(V*(H+(K+Na)-Cl)-(self.B*self.initV))/self.cap 
@@ -387,25 +387,15 @@ class ODEMODEL:
         self.Pump_flux = object.Interpolate
         self.B = self.GetDonnanParticles
         self.Q=self.SetOsmoticBalance
+        
         # set inital conditions
         pH, Ncl, NK, Nna, NH, V = object.InitConditions  
-        print("initial conditions::", pH, Ncl, NK, Nna, NH, V)
+        print("initial conditions:", pH, Ncl, NK, Nna, NH, V)
 
-        #TIMEINTERVAL = [self.STARTTIME, self.STOPTIME]
-        #TIMEINTERVAL = (self.STARTTIME, self.STOPTIME)
-        ##TIMEINTERVAL = [self.STARTTIME, self.STOPTIME, self.DT]
-        #time = np.linspace(0,self.STOPTIME,1000)
-
-
-        time = np.arange(0, 2000, 0.02)
-        #time = np.linspace(0,self.STOPTIME,2000)
+        time = np.arange(self.STARTTIME, self.STOPTIME,self.DT) 
         y0=[pH, Ncl, NK, Nna, NH, V]
         # solve ode
-        SOL = odeint(object.TDQ, y0, time)
-
-        #print("SOL[:,0]", SOL[:,0], len(SOL[:,0]) ) 
-        #print(time) 
-       
+        SOL = odeint(object.TDQ, y0, time)       
         
         # get TDQ plots
         object.GetPlot(time, SOL[:,0], color="darkorange", label="pH", xlabel="Time [s]", ylabel="pH", figname="pH")          
