@@ -397,25 +397,24 @@ class ODEMODEL:
         #time = np.linspace(0,self.STOPTIME,1000)
 
 
-        #time = np.arange(0, 2000, 0.02)
-        time = np.linspace(0,self.STOPTIME,2000)
+        time = np.arange(0, 2000, 0.02)
+        #time = np.linspace(0,self.STOPTIME,2000)
         y0=[pH, Ncl, NK, Nna, NH, V]
         # solve ode
         SOL = odeint(object.TDQ, y0, time)
 
         #print("SOL[:,0]", SOL[:,0], len(SOL[:,0]) ) 
-        print(time) 
+        #print(time) 
+       
         
-
- 
         # get TDQ plots
-
-        object.GetPlot(time, SOL[:,0], color="darkorange", label="pH", xlabel="Time [s]", ylabel="pH", figname="pH")        
+        object.GetPlot(time, SOL[:,0], color="darkorange", label="pH", xlabel="Time [s]", ylabel="pH", figname="pH")          
+        object.GetPlot(time, SOL[:,1], color="lightgreen", label="Ncl", xlabel="Time [s]", ylabel="Ncl", figname="Ncl")
+        object.GetPlot(time, SOL[:,2], color="skyblue", label="NK", xlabel="Time [s]", ylabel="NK", figname="NK") 
+        object.GetPlot(time, SOL[:,3], color="gold", label="Nna", xlabel="Time [s]", ylabel="Nna", figname="Nna")
+        object.GetPlot(time, SOL[:,4], color="c", label="NH", xlabel="Time [s]", ylabel="NH", figname="NH")
+        object.GetPlot(time, SOL[:,5], color="crimson", label="V", xlabel="Time [s]", ylabel="V", figname="V")     
  
- 
- 
- 
-
 
 
 # run ODEMODEL simulation   
