@@ -370,7 +370,7 @@ class ODEMODEL:
 
     
         plt.plot(time, tdq, linestyle='-', linewidth=2, color=color, label=label)
-        plt.grid()
+        plt.grid(linestyle='--',alpha=2)
         plt.legend(loc="best", prop={'size':12}, frameon=False)        
         plt.xlabel(xlabel, fontsize=15)
         plt.ylabel(ylabel, fontsize=15)
