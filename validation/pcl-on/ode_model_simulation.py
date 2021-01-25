@@ -355,7 +355,7 @@ class ODEMODEL:
     @property    
     def GetOriginalData(self):
     
-        data=np.loadtxt("DATA_SimResults.dat")
+        data=np.loadtxt("DATA_SimResults.dat", skiprows=1)
         time=data[:,0]
         pH=data[:,3]
         return time, pH
@@ -392,17 +392,18 @@ class ODEMODEL:
 
         time = np.arange(self.STARTTIME, self.STOPTIME,self.DT) 
         y0=[pH, Ncl, NK, Nna, NH, V]
+        
         # solve ode
         SOL = odeint(object.TDQ, y0, time)       
         
-        # get TDQ plots
+        # get TDQ plots with validation
         object.GetPlot(time, SOL[:,0], color="darkorange", label="pH - Python", xlabel="Time [s]", ylabel="pH", figname="validation_pcl-on_case")
  
-        #object.GetPlot(time, SOL[:,1], color="lightgreen", label="Ncl", xlabel="Time [s]", ylabel="Ncl", figname="Ncl")
-        #object.GetPlot(time, SOL[:,2], color="skyblue", label="NK", xlabel="Time [s]", ylabel="NK", figname="NK") 
-        #object.GetPlot(time, SOL[:,3], color="gold", label="Nna", xlabel="Time [s]", ylabel="Nna", figname="Nna")
-        #object.GetPlot(time, SOL[:,4], color="c", label="NH", xlabel="Time [s]", ylabel="NH", figname="NH")
-        #object.GetPlot(time, SOL[:,5], color="crimson", label="V", xlabel="Time [s]", ylabel="V", figname="V")     
+ 
+ 
+ 
+ 
+ 
  
 
 

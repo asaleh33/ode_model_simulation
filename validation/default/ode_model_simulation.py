@@ -347,7 +347,7 @@ class ODEMODEL:
     @property    
     def GetOriginalData(self):
     
-        data=np.loadtxt("DATA_SimResults.dat")
+        data=np.loadtxt("DATA_SimResults.dat", skiprows=1)
         time=data[:,0]
         pH=data[:,1]
         return time, pH
