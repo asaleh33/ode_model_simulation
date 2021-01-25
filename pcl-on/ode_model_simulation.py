@@ -1,7 +1,9 @@
-# Based on the original ODE codes (Berkeley Madonna and Francesco Pasqualini's Python code) # 
-# for "a model of lysosomal acidification",                                                 #
-# this initial "ODE model simulation" is written by Ahmed Khalil                            #  
-#############################################################################################
+##########################################################################################################
+#                                                                                                        #
+# This code "ODE model simulation" is written by Ahmed Khalil for "a model of lysosomal acidification".  #
+# The code is created based on the original ODE codes of Berkeley Madonna and Francesco Pasqualini.      # 
+#                                                                                                        #
+##########################################################################################################
 
 import numpy as np
 import pandas as pd
@@ -21,7 +23,7 @@ class ODEMODEL:
         self.mole=6.02e23   # Avogadro's Number 
         self.RTF=25.69      # RT/F [mV]
         self.F=96485        # Faraday's Constant
-        self.cap_0=1.0e-6     # capacitance per unit area [Farad/cm^2]
+        self.cap_0=1.0e-6   # capacitance per unit area [Farad/cm^2]
 
 
         # METHOD STIFF
@@ -56,7 +58,7 @@ class ODEMODEL:
 
         # luminal concentrations parameters
         self.initpH=initpH  # pH [pH units]
-        self.initk= 0.005    # K+ [M]
+        self.initk= 0.005   # K+ [M]
         self.initcl=0.11    # Cl- [M]
         self.initna=0.145   # Na+ [M]
         self.initH=initH    # total H+ [M]
@@ -65,19 +67,11 @@ class ODEMODEL:
         self.initpsi_total=initpsi_total
 
         # kinetic parameters
-        self.P=6.0e-5         # H+ permeability
-        
-        self.Pcl= 1.2e-5     # Cl+ permeability
-        #self.Pcl= 0.0         # Cl+ permeability
-        
-        #self.Pk= 7.1e-7      # K+ permeability
-        self.Pk= 0.0         # K+ permeability
-        
-        #self.Pna= 9.6e-7     # Na+ permeability
-        self.Pna= 0.0     # Na+ permeability        
-        
-        self.Pw=0           # Water permeability
-        
+        self.P=6.0e-5       # H+ permeability        
+        self.Pcl= 1.2e-5    # Cl+ permeability   
+        self.Pk= 0.0        # K+ permeability     
+        self.Pna= 0.0       # Na+ permeability      
+        self.Pw=0           # Water permeability        
         self.N_VATP=300     # Number of V-ATPases
         self.N_CLC=5000     # Number of ClC-7 antiporters
         self.CLC_Cl=2       # ClC-7 Cl- Stoichiometry
@@ -90,7 +84,7 @@ class ODEMODEL:
 
         # buffering capacity parameters in [mM/pH unit]
         self.beta=0.04
-
+        # Flux values
         self.Pump_flux=Pump_flux
 
 
@@ -264,9 +258,7 @@ class ODEMODEL:
     # 5.
     def GetJW(self, pH, K, Na, Cl, V):
     
-        Jw = self.Pw*self.SA*(self.oh*10**(-pH) + self.ok*K + self.ona*Na + self.ocl*Cl + self.Q/V - self.Oc)    
-      
-        
+        Jw = self.Pw*self.SA*(self.oh*10**(-pH) + self.ok*K + self.ona*Na + self.ocl*Cl + self.Q/V - self.Oc)  
         return Jw
 
 
@@ -325,7 +317,6 @@ class ODEMODEL:
     
     def TDQ(self, y, t):
 
-
     	# get time dependent parameters
         pH, Ncl, NK, Nna, NH, V = self.GetTDP(y)
         ##print("main parameters", pH, Ncl, NK, Nna, NH, V)
@@ -337,10 +328,7 @@ class ODEMODEL:
         Cli, Ki, Nai, pHi = self.GetMLuminalSurfConcs(Cl, K, Na, pH) ###  
 
         ## get psi
-        psi = self.F*(V*(H+(K+Na)-Cl)-(self.B*self.initV))/self.cap 
-        #print("psi", psi)
-        
-        
+        psi = self.F*(V*(H+(K+Na)-Cl)-(self.B*self.initV))/self.cap   
         # get Hpump
         Hpump = self.GetHpump(psi, pH) 
         # get CLC7      
@@ -365,9 +353,7 @@ class ODEMODEL:
         return [dpH_dt, dNcl_dt, dNK_dt, dNna_dt, dNH_dt, dV_dt]
 
 
-
     def GetPlot(self, time, tdq, color=None, label=None, xlabel=True, ylabel=True, figname=None):
-
     
         plt.plot(time, tdq, linestyle='-', linewidth=2, color=color, label=label)
         plt.title(label="PCl-ON case", fontsize=18, color="black")
@@ -395,7 +381,8 @@ class ODEMODEL:
 
         time = np.arange(self.STARTTIME, self.STOPTIME,self.DT) 
         y0=[pH, Ncl, NK, Nna, NH, V]
-        # solve ode
+        
+        # solve ode using odeint
         SOL = odeint(object.TDQ, y0, time)       
         
         # get TDQ plots
