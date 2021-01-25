@@ -1,7 +1,9 @@
-# Based on the original ODE codes (Berkeley Madonna and Francesco Pasqualini's Python code) # 
-# for "a model of lysosomal acidification",                                                 #
-# this initial "ODE model simulation" is written by Ahmed Khalil                            #  
-#############################################################################################
+##########################################################################################################
+#                                                                                                        #
+# This code "ODE model simulation" is written by Ahmed Khalil for "a model of lysosomal acidification".  #
+# The code is created based on the original ODE codes of Berkeley Madonna and Francesco Pasqualini.      # 
+#                                                                                                        #
+##########################################################################################################
 
 import numpy as np
 import pandas as pd
