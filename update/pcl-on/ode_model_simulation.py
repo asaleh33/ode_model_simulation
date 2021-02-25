@@ -436,7 +436,7 @@ class ODEMODEL:
         SOL = solve_ivp(fun=object.TDQ, t_span=TIMEINTERVAL, y0=[pH, Ncl, NK, Nna, NH, V], t_eval=time, method='BDF')
  
         # get TDQ plots with validation
-        object.GetPlot(SOL.t, SOL.y[0, :], color="darkorange", label="pH - Python", xlabel="Time [s]", ylabel="pH", figname="validation_default_case")   
+        object.GetPlot(SOL.t, SOL.y[0, :], color="darkorange", label="pH - Python", xlabel="Time [s]", ylabel="pH", figname="pcl_on_case")   
 
         Ncl, NK, Nna, NH, V = object.GetSolverConcs(SOL.y)  
         Cl, K, H, Na = object.LuminalConcs(Ncl, V, NK, NH, Nna)
