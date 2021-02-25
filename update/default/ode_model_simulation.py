@@ -327,6 +327,28 @@ class ODEMODEL:
         NK, Nna=list[2],list[3]
         NH, V=list[4],list[5]
         return pH,Ncl,NK,Nna,NH,V
+        
+
+    def Getpsi(self, V, H, K, Na, Cl):
+    
+        psi = self.F*(V*(H+(K+Na)-Cl)-(self.B*self.initV))/self.cap
+        return psi 
+        
+        
+    def GetSolverConcs(self, MAT=np.array([])):
+        
+        """
+        it returns concentrations matrices from the solver
+        """        
+        Ncl = MAT[1, :]
+        NK = MAT[2, :]
+        Nna = MAT[3, :]
+        NH = MAT[4, :]
+        V = MAT[5, :] 
+        
+        return Ncl, NK, Nna, NH, V
+        
+       
 
     
     def TDQ(self, t, y):
@@ -342,7 +364,8 @@ class ODEMODEL:
         Cli, Ki, Nai, pHi = self.GetMLuminalSurfConcs(Cl, K, Na, pH) ###  
 
         ## get psi
-        psi = self.F*(V*(H+(K+Na)-Cl)-(self.B*self.initV))/self.cap
+        psi = self.Getpsi(V, H, K, Na, Cl)
+        ##psi = self.F*(V*(H+(K+Na)-Cl)-(self.B*self.initV))/self.cap
         # get Hpump
         Hpump = self.GetHpump(psi, pH) 
         # get CLC7      
@@ -417,31 +440,29 @@ class ODEMODEL:
         object.GetPlot(SOL.t, SOL.y[0, :], color="darkorange", label="pH - Python", xlabel="Time [s]", ylabel="pH", figname="validation_default_case")   
         
         
+        # psi validation from concentrations::
         
-        # psi validation
-        
-        Ncl = SOL.y[1, :]
-        NK = SOL.y[2, :]
-        Nna = SOL.y[3, :]
-        NH = SOL.y[4, :]
-        V = SOL.y[5, :]
-        
-        
-        Cl = Ncl/V/self.mole
-        K = NK/V/self.mole
-        H = NH/V/self.mole
-        Na = Nna/V/self.mole
-        
-      
-        psi = self.F*(V*(H+(K+Na)-Cl)-(self.B*self.initV))/self.cap
-        
-        psi_total = psi + self.psi_out-self.psi_in 
-        
-        #for tt, p in zip(SOL.t, psi_total):
-        #    print(tt, p)      
-       
+        #Ncl = SOL.y[1, :]
+        #NK = SOL.y[2, :]
+        #Nna = SOL.y[3, :]
+        #NH = SOL.y[4, :]
+        #V = SOL.y[5, :]
 
+        #Cl = Ncl/V/self.mole
+        #K = NK/V/self.mole
+        #H = NH/V/self.mole
+        #Na = Nna/V/self.mole
         
+        #psi = self.F*(V*(H+(K+Na)-Cl)-(self.B*self.initV))/self.cap
+        
+
+        Ncl, NK, Nna, NH, V = object.GetSolverConcs(SOL.y)  
+        Cl, K, H, Na = object.LuminalConcs(Ncl, V, NK, NH, Nna)
+        
+        psi = object.Getpsi(V, H, K, Na, Cl) 
+        psi_total = psi + self.psi_out-self.psi_in 
+
+
         ## plot
         origdata=np.loadtxt("DATA_SimResults.dat", skiprows=1)
         origtime=origdata[:,0]
@@ -458,8 +479,7 @@ class ODEMODEL:
         plt.tight_layout()
         plt.savefig("psi.png")
         plt.show()
-        
-        
+       
         
 
 
