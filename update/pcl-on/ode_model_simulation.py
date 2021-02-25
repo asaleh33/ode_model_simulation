@@ -25,18 +25,21 @@ class ODEMODEL:
             param = []
             val = []
             file = open(inputfile, "r")
+            print("Input file name:", file.name, "\n")
             for line in file:	
                 if not line.startswith(("#")):
                     sep = line.strip().split()
                     param.append(str(sep[0]))
                     val.append(float(sep[1]))
+            
             self.ode_dict = {k:v for k,v in zip(param, val)}
+            file.close()
             return self.ode_dict
         
         # call ode dictionary (keys and values)
         self.ode_dict = get_params(inputfile)
         # print to check the input file contents
-        print("inputfile:", inputfile, self.ode_dict, "\n")
+        print("input parameters:", self.ode_dict, "\n")
         
         
         # Standard Constants:
@@ -318,7 +321,6 @@ class ODEMODEL:
     
 
     def GetTDP(self, list):
-
         """
         it returns time dependent parameters (TDP)
         """
@@ -331,13 +333,14 @@ class ODEMODEL:
         
 
     def Getpsi(self, V, H, K, Na, Cl):
-    
+        """
+        it returns psi 
+        """
         psi = self.F*(V*(H+(K+Na)-Cl)-(self.B*self.initV))/self.cap
         return psi 
         
         
-    def GetSolverConcs(self, MAT=np.array([])):
-        
+    def GetSolverConcs(self, MAT=np.array([])):        
         """
         it returns concentrations matrices from the solver
         """        
@@ -415,7 +418,6 @@ class ODEMODEL:
         plt.savefig(figname)
         plt.show()
         return 
- 
 
 
 
@@ -425,9 +427,8 @@ class ODEMODEL:
         self.B = self.GetDonnanParticles
         self.Q=self.SetOsmoticBalance
         # set inital conditions
-        # [dpH_dt, dNcl_dt, dNK_dt, dNna_dt, dNH_dt, dV_dt]
         pH, Ncl, NK, Nna, NH, V = object.InitConditions  #
-        print("initial conditions:", pH, Ncl, NK, Nna, NH, V)
+        print("initial conditions:", pH, Ncl, NK, Nna, NH, V, "\n")
 
         TIMEINTERVAL = [self.STARTTIME, self.STOPTIME] 
         time = np.arange(self.STARTTIME, self.STOPTIME,self.DT)
@@ -437,37 +438,14 @@ class ODEMODEL:
  
         # get TDQ plots with validation
         object.GetPlot(SOL.t, SOL.y[0, :], color="darkorange", label="pH - Python", xlabel="Time [s]", ylabel="pH", figname="validation_default_case")   
-        
-        
-        
-        # psi validation
-        
-        #Ncl = SOL.y[1, :]
-        #NK = SOL.y[2, :]
-        #Nna = SOL.y[3, :]
-        #NH = SOL.y[4, :]
-        #V = SOL.y[5, :]
-        
-        
-        #Cl = Ncl/V/self.mole
-        #K = NK/V/self.mole
-        #H = NH/V/self.mole
-        #Na = Nna/V/self.mole
-  
-        
+
         Ncl, NK, Nna, NH, V = object.GetSolverConcs(SOL.y)  
         Cl, K, H, Na = object.LuminalConcs(Ncl, V, NK, NH, Nna)
         
         psi = object.Getpsi(V, H, K, Na, Cl) 
         psi_total = psi + self.psi_out-self.psi_in 
-        
-
-        ##psi = self.F*(V*(H+(K+Na)-Cl)-(self.B*self.initV))/self.cap
-        
+      
         psi_total = psi + self.psi_out-self.psi_in 
-        
-        #for tt, p in zip(SOL.t, psi_total):
-        #    print(tt, p)
         
         
         ## plot
@@ -486,10 +464,7 @@ class ODEMODEL:
         plt.tight_layout()
         plt.savefig("psi.png")
         plt.show()
-        
-        
-     
-
+  
 
 # run ODEMODEL simulation   
 if __name__ == "__main__":
