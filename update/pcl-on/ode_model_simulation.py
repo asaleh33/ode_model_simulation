@@ -31,9 +31,8 @@ class ODEMODEL:
                     sep = line.strip().split()
                     param.append(str(sep[0]))
                     val.append(float(sep[1]))
-            
-            self.ode_dict = {k:v for k,v in zip(param, val)}
             file.close()
+            self.ode_dict = {k:v for k,v in zip(param, val)}
             return self.ode_dict
         
         # call ode dictionary (keys and values)
