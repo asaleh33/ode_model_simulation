@@ -24,21 +24,20 @@ class ODEMODEL:
         def get_params(inputfile):
             param = []
             val = []
-            file = open(inputfile, "r")
-            print("Input file name:", file.name, "\n")
-            for line in file:	
-                if not line.startswith(("#")):
-                    sep = line.strip().split()
-                    param.append(str(sep[0]))
-                    val.append(float(sep[1]))
-            file.close()
+            #file = open(inputfile, "r")
+            with open('input.txt', 'r') as f:
+                for line in f:  
+                    if not line.startswith(("#")):
+                        sep = line.strip().split()
+                        param.append(str(sep[0]))
+                        val.append(float(sep[1]))
             self.ode_dict = {k:v for k,v in zip(param, val)}
             return self.ode_dict
         
         # call ode dictionary (keys and values)
         self.ode_dict = get_params(inputfile)
         # print to check the input file contents
-        print("input parameters:", self.ode_dict, "\n")
+        print("inputfile:", inputfile, self.ode_dict, "\n")
         
         
         # Standard Constants:
@@ -227,13 +226,31 @@ class ODEMODEL:
         """
         it returns gg that allows treatment of singular terms for passive ion flux
         """  
-    	
+        
         if abs(psi) > .01:
             gg = psi/(1-np.exp(-psi/self.RTF))/self.RTF
             return gg
         else:
             gg = 1/(1 - (psi/self.RTF)/2 + (psi/self.RTF)**2/6. - (psi/self.RTF)**3/24. +(psi/self.RTF)**4/120.)
             return gg
+
+
+
+    def GetggL(self, psi):
+
+        """
+        it returns gg that allows treatment of singular terms for passive ion flux
+        """ 
+
+        for p in psi: 
+        
+            if abs(p) > .01:
+                gg = p/(1-np.exp(-p/self.RTF))/self.RTF
+                return gg
+            else:
+                gg = 1/(1 - (p/self.RTF)/2 + (p/self.RTF)**2/6. - (p/self.RTF)**3/24. +(p/self.RTF)**4/120.)
+                return gg
+
 
  
     def GetCLC7(self, Cle, Cli, pHe, pHi, psi): 
@@ -320,6 +337,7 @@ class ODEMODEL:
     
 
     def GetTDP(self, list):
+
         """
         it returns time dependent parameters (TDP)
         """
@@ -329,44 +347,46 @@ class ODEMODEL:
         NH, V=list[4],list[5]
         return pH,Ncl,NK,Nna,NH,V
         
-        
 
     def Getpsi(self, V, H, K, Na, Cl):
-        """
-        it returns psi 
-        """
+    
         psi = self.F*(V*(H+(K+Na)-Cl)-(self.B*self.initV))/self.cap
         return psi 
         
         
-    def GetSolverConcs(self, MAT=np.array([])):        
+    def GetSolverConcs(self, MAT=np.array([])):
+        
         """
         it returns concentrations matrices from the solver
-        """        
+        """  
+        pH = MAT[0, :]      
         Ncl = MAT[1, :]
         NK = MAT[2, :]
         Nna = MAT[3, :]
         NH = MAT[4, :]
         V = MAT[5, :] 
         
-        return Ncl, NK, Nna, NH, V        
+        return pH, Ncl, NK, Nna, NH, V
         
+       
 
     
     def TDQ(self, t, y):
 
-    	# get time dependent parameters
+        # get time dependent parameters
         pH, Ncl, NK, Nna, NH, V = self.GetTDP(y)
         ##print("main parameters", pH, Ncl, NK, Nna, NH, V)
                      
         Cl, K, H, Na = self.LuminalConcs(Ncl, V, NK, NH, Nna)
         ## Modified Cytoplasmic Surface Concentrations
-        Cle, Ke, Nae, pHe = self.GetMCytoSurfConcs        
+        Cle, Ke, Nae, pHe = self.GetMCytoSurfConcs 
+
+        ###print("Cle, Ke, Nae, pHe", Cle, Ke, Nae, pHe)       
         ## Modified Luminal Surface Concentrations
         Cli, Ki, Nai, pHi = self.GetMLuminalSurfConcs(Cl, K, Na, pH) ###  
 
         ## get psi
-        psi = self.F*(V*(H+(K+Na)-Cl)-(self.B*self.initV))/self.cap
+        psi = self.Getpsi(V, H, K, Na, Cl)
         # get Hpump
         Hpump = self.GetHpump(psi, pH) 
         # get CLC7      
@@ -388,8 +408,7 @@ class ODEMODEL:
         dNna_dt = self.Get_dNna_dt(Naflow)
         dNH_dt = self.Get_dNH_dt(Hpump, Hflow, CLC7)
         dV_dt = self.Get_dV_dt(Jw)
-        
- 
+         
         return [dpH_dt, dNcl_dt, dNK_dt, dNna_dt, dNH_dt, dV_dt]
         
         
@@ -408,7 +427,7 @@ class ODEMODEL:
         plt.plot(original_time, original_pH, linestyle='-', linewidth=2, color="slateblue", label="pH - Berkeley Madonna")
         plt.plot(time, tdq, linestyle='-', linewidth=2, color=color, label=label)
         
-        plt.title(label="Pcl-ON", fontsize=18, color="black")
+        plt.title(label="Pcl-ON case", fontsize=18, color="black")
         plt.grid(linestyle='--',alpha=2)
         plt.legend(loc="best", prop={'size':12}, frameon=False)        
         plt.xlabel(xlabel, fontsize=15)
@@ -420,50 +439,106 @@ class ODEMODEL:
 
 
 
+
+    def GetPlotF(self, time, flow, color=None, label=None, xlabel=True, ylabel=True, figname=None):
+    
+        plt.plot(time, flow, linestyle='-', linewidth=2, color=color, label=label)
+        
+        plt.title(label="Pcl-ON case", fontsize=18, color="black")
+        plt.grid(linestyle='--',alpha=2)
+        plt.legend(loc="best", prop={'size':12}, frameon=False)        
+        plt.xlabel(xlabel, fontsize=15)
+        plt.ylabel(ylabel, fontsize=15)
+        plt.tight_layout()
+        plt.savefig(figname)
+        plt.show()
+        return 
+ 
+
+
+
     def main(self, object):
  
         self.Pump_flux = object.Interpolate
         self.B = self.GetDonnanParticles
         self.Q=self.SetOsmoticBalance
         # set inital conditions
+        # [dpH_dt, dNcl_dt, dNK_dt, dNna_dt, dNH_dt, dV_dt]
         pH, Ncl, NK, Nna, NH, V = object.InitConditions  #
-        print("initial conditions:", pH, Ncl, NK, Nna, NH, V, "\n")
+        print("initial conditions:", pH, Ncl, NK, Nna, NH, V)
 
         TIMEINTERVAL = [self.STARTTIME, self.STOPTIME] 
         time = np.arange(self.STARTTIME, self.STOPTIME,self.DT)
         
         # solve ode using solve_ivp
-        SOL = solve_ivp(fun=object.TDQ, t_span=TIMEINTERVAL, y0=[pH, Ncl, NK, Nna, NH, V], t_eval=time, method='BDF')
+        SOL = solve_ivp(fun=object.TDQ, t_span=TIMEINTERVAL, y0=[pH, Ncl, NK, Nna, NH, V], t_eval=time, method='BDF') 
  
-        # get TDQ plots with validation
-        object.GetPlot(SOL.t, SOL.y[0, :], color="darkorange", label="pH - Python", xlabel="Time [s]", ylabel="pH", figname="pcl_on_case")   
+        pH, Ncl, NK, Nna, NH, V = object.GetSolverConcs(SOL.y)
+    
+        Cl, K, H, Na = object.LuminalConcs(Ncl, V, NK, NH, Nna) 
 
-        Ncl, NK, Nna, NH, V = object.GetSolverConcs(SOL.y)  
-        Cl, K, H, Na = object.LuminalConcs(Ncl, V, NK, NH, Nna)
-        
+        Cle, Ke, Nae, pHe = object.GetMCytoSurfConcs
+        ##print("TEST", Cle, Ke, Nae, pHe)
+
+        Cli, Ki, Nai, pHi = object.GetMLuminalSurfConcs(Cl, K, Na, pH)
+        ##print("Cli, Ki, Nai, pHi", Cli, Ki, Nai, pHi)
+
+        # get psi and psi total
         psi = object.Getpsi(V, H, K, Na, Cl) 
-        psi_total = psi + self.psi_out-self.psi_in 
-      
-        psi_total = psi + self.psi_out-self.psi_in 
-        
-        
-        ## plot
+        psi_total = psi + self.psi_out-self.psi_in
+
+        # get CLC7      
+        CLC7 = object.GetCLC7(Cle, Cli, pHe, pHi, psi)
+
+        # treatment of singular terms for passive ion flux
+        gg = object.GetggL(psi)
+        # get flows:
+        # 1. H-flow        
+        Hflow = object.GetHflow(pHe, pHi, pH, psi, gg)
+
+        # 2. Cl-flow 
+        Clflow = object.GetClflow(Cle, Cli, psi, gg)
+        # 3. K-flow
+        Kflow = object.GetKflow(Ke, psi, Ki, gg)
+        # 4. Na-flow
+        Naflow = object.GetNaflow(Nae, psi, Nai, gg)
+        # 5. Jw-flow
+        Jw = object.GetJW(pH, K, Na, Cl, V)      
+ 
+
+        ## plot-> psi for validation
         origdata=np.loadtxt("DATA_SimResults.dat", skiprows=1)
         origtime=origdata[:,0]
         origpsi=origdata[:,4]
-        
+
+
+        # get TDQ plots for validation
+        object.GetPlot(SOL.t, pH, color="darkorange", label="pH - Python", xlabel="Time [s]", ylabel="pH", figname="validation_pcl-on_case")
+
         
         plt.plot(origtime, origpsi, linestyle='-', linewidth=2, color="blue", label="psi - Berkeley Madonna")
         plt.plot(SOL.t, psi_total, linestyle='-', linewidth=2, color="red", label="psi - Python")        
-        plt.title(label="psi - Pcl-ON", fontsize=18, color="black")
+        plt.title(label="psi - Pcl-ON case", fontsize=18, color="black")
         plt.grid(linestyle='--',alpha=2)
         plt.legend(loc="best", prop={'size':12}, frameon=False)        
         plt.xlabel("Time [s]", fontsize=15)
         plt.ylabel("psi [mV]", fontsize=15)
         plt.tight_layout()
-        plt.savefig("psi.png")
+        plt.savefig("psi-pcl-on.png")
         plt.show()
-  
+
+
+
+        ## get flow plots
+        object.GetPlotF(SOL.t, Hflow, color="darkorange", label="Hflow", xlabel="Time [s]", ylabel="Hflow", figname="Hflow")
+
+        object.GetPlotF(SOL.t, Clflow, color="darkorange", label="Clflow", xlabel="Time [s]", ylabel="Clflow", figname="Clflow")
+        object.GetPlotF(SOL.t, Kflow, color="darkorange", label="Kflow", xlabel="Time [s]", ylabel="Kflow", figname="Kflow")
+
+        object.GetPlotF(SOL.t, Naflow, color="darkorange", label="Naflow", xlabel="Time [s]", ylabel="Naflow", figname="Naflow")
+       
+        
+
 
 # run ODEMODEL simulation   
 if __name__ == "__main__":

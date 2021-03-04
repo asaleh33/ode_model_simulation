@@ -427,6 +427,8 @@ class ODEMODEL:
         plt.plot(original_time, original_pH, linestyle='-', linewidth=2, color="slateblue", label="pH - Berkeley Madonna")
         plt.plot(time, tdq, linestyle='-', linewidth=2, color=color, label=label)
         
+        print("length:", len(original_pH), len(tdq))
+
         plt.title(label="Default case", fontsize=18, color="black")
         plt.grid(linestyle='--',alpha=2)
         plt.legend(loc="best", prop={'size':12}, frameon=False)        
